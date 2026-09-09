@@ -1,0 +1,62 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Local AI Chat";
+}
+
+<script>
+    window.addEventListener('load', function() {
+        const ta = document.getElementById('ConversationBlock');
+        if (ta) {
+            ta.scrollTop = ta.scrollHeight;
+        }
+    });
+
+    window.addEventListener('submit', function() {
+
+        document.getElementById('SubmitButton').innerText = "...";
+        document.getElementById('SubmitButton').disabled = true;
+
+    });
+</script>
+
+<div class="container mt-4" style="max-width: 700px;">
+    <h2>Local AI Conversation</h2>
+    <hr />
+
+    <!-- Conversation Feed -->
+    <div class="mb-4 border rounded p-3 bg-light" style="min-height: 300px; max-height: 500px; overflow-y: auto;" id="ConversationBlock">
+        @if (!Model.ConversationHistory.Any())
+        {
+            <p class="text-muted text-center">No messages yet. Send a message to start the conversation.</p>
+        }
+        else
+        {
+            @foreach (var msg in Model.ConversationHistory)
+            {
+                <div class="mb-3 d-flex @(msg.Role == "user" ? "justify-content-end" : "justify-content-start")">
+                    <div class="p-3 rounded @(msg.Role == "user" ? "bg-primary text-white" : "bg-white border")" style="max-width: 80%;">
+                        <strong>@(msg.Role == "user" ? "You" : "Gemma"):</strong>
+                        <div class="mb-0 mt-1" style="max-height: 200px; white-space: pre-wrap; overflow-x: auto; overflow-y: auto;">@Html.Raw(@msg.Content)</div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Input Form -->
+    <form method="post" id="ChatForm">
+        <div class="input-group">
+            <textarea asp-for="UserPrompt" rows="5" style="max-height: 100px; overflow-y: auto;" class="form-control" placeholder="Type your message..."></textarea><p />
+        </div>
+        <div class="input-group">
+            <label for="chatCategories" style="margin-right: 10px; margin-top: 5px;">Select Category:</label>
+            <select id="chatCategories" asp-for="SelectedCategoryId" asp-items="Model.ChatCategoryOptions" class="form-control" onchange="this.form.submit();">
+                <option value="">Today's Chat</option>
+            </select>        
+        </div>
+        <div class="input-group">
+            <button type="submit" style="width: 100px;display: block; margin-left: auto;" class="btn btn-primary" disabled="@Model.Disabled" id="SubmitButton">@Model.SubmitText</button>
+        </div>
+    </form>
+</div>
