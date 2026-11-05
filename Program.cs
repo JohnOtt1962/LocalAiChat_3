@@ -2,14 +2,20 @@ using FluentValidation;
 using LocalAiLibrary.AiLibrary;
 using LocalAiLibrary.AiLibrary.AiDbService;
 using LocalAiLibrary.AiLibrary.AiSessionService;
+using LocalAiLibrary.AiLibrary.AITools;
 using LocalAiLibrary.AiLibrary.CategoryClassification;
 using LocalAiLibrary.AiLibrary.CategoryClassification.AiCategoryDbService;
 using LocalAiLibrary.AiLibrary.CategoryClassification.AiCategoryService;
 using LocalAiLibrary.AiLibrary.CategoryClassification.Models;
 using LocalAiLibrary.AiLibrary.ChatService;
 using LocalAiLibrary.AiLibrary.ChatService.Models;
+using LocalAiLibrary.AiLibrary.EmailChatService;
 using LocalAiLibrary.AiLibrary.Network;
+using LocalAiLibrary.AiLibrary.Orchestration;
 using Utilities.Email;
+using Utilities.Email.EmailOperations;
+using Utilities.Email.Models;
+using Utilities.Logger;
 using Utilities.Network;
 using Utilities.Repo;
 
@@ -19,7 +25,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
 builder.Services.Configure<AiConfig>(builder.Configuration.GetSection("AI-Config"));
-builder.Services.Configure<Utilities.Email.EmailConfig>(builder.Configuration.GetSection("Email-Config"));
+builder.Services.Configure<EmailConfig>(builder.Configuration.GetSection("Email-Config"));
 builder.Services.Configure<AiChatCategoryConfig>(builder.Configuration.GetSection("AI-ChatCategory"));
 
 builder.Services.AddHttpContextAccessor();
@@ -37,13 +43,22 @@ builder.Services.AddScoped<IAiManager, AiManager>();
 builder.Services.AddScoped<IChatSessionService, ChatSessionService>();
 builder.Services.AddScoped<IAiCommunicationManager, AiCommunicationManager>();
 builder.Services.AddScoped<IEmail, Email>();
+builder.Services.AddScoped<IUtilLogger, Logger>();
 builder.Services.AddScoped<INetwork, Network>();
 builder.Services.AddScoped<IRepo, Repository>();
 builder.Services.AddScoped<IAiNetwork, AiNetwork>();
 builder.Services.AddScoped<IAiChatCategoryRepo, AiChatCategoryRepo>();
 builder.Services.AddScoped<IManageChatEntryClassificationService, ManageChatEntryClassificationService>();
 builder.Services.AddScoped<IAiCategoryManager, AiCategoryManager>();
-builder.Services.AddScoped<IAiRepo, AiRepo>();
+builder.Services.AddScoped<IOutstandingChatEmails, OutStandingChatEmails>();
+builder.Services.AddScoped<IAiRepo, AiRepoManager>();
+builder.Services.AddScoped<IOrchestrationPlanManagement, OrchestrationPlanManagement>();
+builder.Services.AddScoped<IToolSelection, ToolSelection>();
+builder.Services.AddScoped<IPromptHelper, PromptHelper>();
+builder.Services.AddScoped<ISessionStore, SessionStore>();
+builder.Services.AddScoped<IEmailDelete, EmailDelete>();
+builder.Services.AddScoped<IEmailFetch, EmailFetch>();
+builder.Services.AddScoped<IEmailManager, EmailManager>();
 
 var app = builder.Build();
 

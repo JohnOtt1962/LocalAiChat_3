@@ -32,40 +32,42 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnPostAsync()
     {
         string categoryId = SelectedCategoryId ?? "0";
-        ConversationHistory = _chatSessionService.GetHistory(categoryId);
+        ConversationHistory = await _chatSessionService.GetHistory(categoryId);
 
         if (string.IsNullOrWhiteSpace(UserPrompt))
         {
-            GetCategories();
+            await GetCategories();
             return Page();
         }
 
         await _aiManager.MakeAiCallAsync(ConversationHistory, UserPrompt);
-        ConversationHistory = _chatSessionService.GetHistory(categoryId);
+        _chatSessionService.ClearHistory();
+        ConversationHistory = await _chatSessionService.GetHistory(categoryId);
 
         ModelState.Clear();
         UserPrompt = string.Empty;
         Disabled = false;
         SubmitText = "Send";
 
-        GetCategories();
+        await GetCategories();
         return Page();
     }
 
-    public IActionResult OnGetAsync()
+    public async Task<IActionResult> OnGetAsync()
     {
-        GetCategories();
-        ConversationHistory = _chatSessionService.GetHistory("0");
+        await GetCategories();
+        ConversationHistory = await _chatSessionService.GetHistory("0");
         return Page();
     }
 
-    private void GetCategories()
+    private async Task GetCategories()
     {
-        var chatCategories = _chatSessionService.GetCategories();
-        ChatCategoryOptions = chatCategories.Select(c => new SelectListItem
-        {
-            Value = c.Id.ToString(),
-            Text = c.CategoryName
-        }).ToList();
+        var chatCategories = await _chatSessionService.GetCategories();
+        if (chatCategories != null)
+            ChatCategoryOptions = chatCategories.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.CategoryName
+            }).ToList();
     }
 }
