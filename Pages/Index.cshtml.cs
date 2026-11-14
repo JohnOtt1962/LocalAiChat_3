@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace LocalAiChat_2.Pages;
+namespace LocalAiChat_4.Pages;
 
 public class IndexModel : PageModel
 {
@@ -19,6 +19,8 @@ public class IndexModel : PageModel
     }
 
     [BindProperty]
+    public string SelectedApplicationId { get; set; }
+    [BindProperty]
     public string SelectedCategoryId { get; set; }
     [BindProperty]
     public string UserPrompt { get; set; } = string.Empty;
@@ -28,14 +30,17 @@ public class IndexModel : PageModel
     public string SubmitText { get; set; } = "Send";
     public List<ChatRequestMessage> ConversationHistory { get; set; } = new();
     public List<SelectListItem> ChatCategoryOptions { get; set; } = new();
+    public List<SelectListItem> ChatApplicationOptions { get; set; } = new();
 
     public async Task<IActionResult> OnPostAsync()
     {
         string categoryId = SelectedCategoryId ?? "0";
-        ConversationHistory = await _chatSessionService.GetHistory(categoryId);
 
+        ConversationHistory = await _chatSessionService.GetHistory(categoryId);
+        _chatSessionService.SetApplicationName(Convert.ToInt16(SelectedApplicationId));
         if (string.IsNullOrWhiteSpace(UserPrompt))
         {
+            await GetApplications();
             await GetCategories();
             return Page();
         }
@@ -50,14 +55,27 @@ public class IndexModel : PageModel
         SubmitText = "Send";
 
         await GetCategories();
+        await GetApplications();
         return Page();
     }
 
     public async Task<IActionResult> OnGetAsync()
     {
         await GetCategories();
+        await GetApplications();
         ConversationHistory = await _chatSessionService.GetHistory("0");
         return Page();
+    }
+
+    private async Task GetApplications()
+    {
+        var chatApplicatons = await _chatSessionService.GetApplications();
+        if (chatApplicatons != null)
+            ChatApplicationOptions = chatApplicatons.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            }).ToList();
     }
 
     private async Task GetCategories()
