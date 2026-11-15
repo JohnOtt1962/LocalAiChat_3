@@ -18,8 +18,8 @@ public class IndexModel : PageModel
         _aiManager = aiManager;
     }
 
-    [BindProperty]
-    public string SelectedApplicationId { get; set; }
+    //[BindProperty]
+    //public string SelectedApplicationId { get; set; }
     [BindProperty]
     public string SelectedCategoryId { get; set; }
     [BindProperty]
@@ -39,7 +39,7 @@ public class IndexModel : PageModel
         ConversationHistory = await _chatSessionService.GetHistory(categoryId);
         if (string.IsNullOrWhiteSpace(UserPrompt))
         {
-            await GetApplications();
+           // await GetApplications();
             await GetCategories();
             return Page();
         }
@@ -54,28 +54,28 @@ public class IndexModel : PageModel
         SubmitText = "Send";
 
         await GetCategories();
-        await GetApplications();
+        //await GetApplications();
         return Page();
     }
 
     public async Task<IActionResult> OnGetAsync()
     {
         await GetCategories();
-        await GetApplications();
+        //await GetApplications();
         ConversationHistory = await _chatSessionService.GetHistory("0");
         return Page();
     }
 
-    private async Task GetApplications()
-    {
-        var chatApplicatons = await _chatSessionService.GetApplications();
-        if (chatApplicatons != null)
-            ChatApplicationOptions = chatApplicatons.Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name
-            }).ToList();
-    }
+    //private async Task GetApplications()
+    //{
+    //    var chatApplicatons = await _chatSessionService.GetApplications();
+    //    if (chatApplicatons != null)
+    //        ChatApplicationOptions = chatApplicatons.Select(c => new SelectListItem
+    //        {
+    //            Value = c.Id.ToString(),
+    //            Text = c.Name
+    //        }).ToList();
+    //}
 
     private async Task GetCategories()
     {
