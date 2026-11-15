@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace LocalAiChat_2.Pages;
+namespace LocalAiChat_3.Pages;
 
 public class IndexModel : PageModel
 {
@@ -19,6 +19,8 @@ public class IndexModel : PageModel
     }
 
     [BindProperty]
+    public string SelectedApplicationId { get; set; }
+    [BindProperty]
     public string SelectedCategoryId { get; set; }
     [BindProperty]
     public string UserPrompt { get; set; } = string.Empty;
@@ -28,12 +30,13 @@ public class IndexModel : PageModel
     public string SubmitText { get; set; } = "Send";
     public List<ChatRequestMessage> ConversationHistory { get; set; } = new();
     public List<SelectListItem> ChatCategoryOptions { get; set; } = new();
+    public List<SelectListItem> ChatApplicationOptions { get; set; } = new();
 
     public async Task<IActionResult> OnPostAsync()
     {
         string categoryId = SelectedCategoryId ?? "0";
-        ConversationHistory = await _chatSessionService.GetHistory(categoryId);
 
+        ConversationHistory = await _chatSessionService.GetHistory(categoryId);
         if (string.IsNullOrWhiteSpace(UserPrompt))
         {
             await GetCategories();
